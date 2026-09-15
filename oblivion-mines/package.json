@@ -1,0 +1,22 @@
+{
+  "name": "oblivion-mines",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "망각의 지뢰 — 11x11 비대칭 정보 보드게임 웹 구현",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "vitest": "^2.1.4"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
+}
