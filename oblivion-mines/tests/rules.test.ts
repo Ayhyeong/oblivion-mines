@@ -471,11 +471,19 @@ describe('§7.3 — 리플레이 재현 검증', () => {
 
   it('배치를 사후에 바꾸면 잡아낸다', () => {
     const rec = toRecord(doubleMineGame());
+    // 무작위 배치로 바꾸면 우연히 같은 기보가 나올 수 있다(짧은 대국이라 확률이 낮지 않다).
+    // b2 의 인접 지뢰 하나를 확실히 없애 판정이 반드시 달라지게 만든다.
+    const w = rec.commitments.W.cells;
+    const b2Neighbors = neighbors(at('b2'));
+    const swapIn = PLACEABLE.find((c) => !w.includes(c) && !b2Neighbors.includes(c));
+    expect(swapIn).toBeDefined();
     rec.commitments = {
       ...rec.commitments,
-      W: { ...rec.commitments.W, cells: randomPlacement() },
+      W: { ...rec.commitments.W, cells: [...w.filter((c) => c !== at('c3')), swapIn!] },
     };
-    expect(verifyRecord(rec).ok).toBe(false);
+    const v = verifyRecord(rec);
+    expect(v.ok).toBe(false);
+    expect(v.issues.join(' ')).toMatch(/점수 불일치/);
   });
 });
 
