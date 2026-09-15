@@ -647,7 +647,13 @@ function renderHome(): void {
   intro.append(
     el('p', {
       class: 'muted',
-      text: '두 브라우저가 직접 연결됩니다. 서버가 없으므로 상대 지뢰는 어떤 경로로도 내 브라우저에 오지 않고, 매 수 필요한 두 숫자만 오갑니다.',
+      text: '집·회사·모바일 데이터 등 서로 다른 인터넷이어도 됩니다. 두 브라우저가 직접 연결되고, 서버가 없으므로 상대 지뢰는 어떤 경로로도 내 브라우저에 오지 않습니다.',
+    }),
+  );
+  intro.append(
+    el('p', {
+      class: 'muted small',
+      text: '코드를 주고받는 것은 연결할 때 딱 한 번입니다. 연결된 뒤에는 수가 자동으로 오갑니다.',
     }),
   );
   const start = el('div', { class: 'actions' });
@@ -758,7 +764,12 @@ function renderHostPanel(): void {
 
   const link = inviteLink(state.myOfferCode);
   panel.append(el('h3', { text: '1. 초대 보내기' }));
-  panel.append(el('p', { class: 'muted small', text: '아래 링크를 상대에게 보내세요. 링크가 너무 길면 그 아래 코드를 복사해 전달해도 됩니다.' }));
+  panel.append(
+    el('p', {
+      class: 'muted small',
+      text: '아래 링크를 상대에게 보내세요. 링크가 너무 길면 그 아래 코드를 복사해 전달해도 됩니다. 상대가 다른 인터넷을 써도 됩니다.',
+    }),
+  );
   const linkRow = el('div', { class: 'actions' });
   linkRow.append(
     button('초대 링크 복사', () => {
@@ -776,7 +787,12 @@ function renderHostPanel(): void {
   // connectionState 를 'connecting' 으로 올리는 경우가 있어서, 그것만 믿고 숨기면 막힌다.
   const step2 = el('div', { class: 'panel' });
   step2.append(
-    pasteBox('2. 상대의 응답 코드 붙여넣기', '상대가 초대를 열면 응답 코드가 나옵니다. 그것을 받아 여기에 넣으면 연결됩니다.', '연결', (v) => void acceptAnswerCode(v)),
+    pasteBox(
+      '2. 상대의 응답 코드 붙여넣기',
+      '상대가 초대를 열면 응답 코드가 나옵니다. 그것을 받아 여기에 넣으면 연결됩니다. 여기까지가 마지막 수동 단계이고, 이후 대국은 자동으로 진행됩니다.',
+      '연결',
+      (v) => void acceptAnswerCode(v),
+    ),
   );
   if (state.answerAccepted) {
     step2.append(
@@ -824,7 +840,13 @@ function renderGuestPanel(): void {
     return;
   }
 
-  panel.append(codeBox('응답 코드', state.myAnswerCode, '이 코드를 방을 연 사람에게 보내면 연결됩니다.'));
+  panel.append(
+    codeBox(
+      '응답 코드',
+      state.myAnswerCode,
+      '이 코드를 방을 연 사람에게 보내면 연결됩니다. 코드 교환은 이번 한 번뿐이고, 이후 수는 자동으로 오갑니다.',
+    ),
+  );
   panel.append(
     el('p', {
       class: 'muted small',
@@ -987,13 +1009,16 @@ function renderPlayPanel(): void {
 }
 
 function renderLog(g: ServerState): HTMLElement {
+  // 한 칸에 지뢰가 2개였다는 것은 "내 것 하나 + 상대 것 하나" 라는 뜻이라,
+  // 잊었어야 할 내 지뢰 위치까지 알려준다. 배치가 전부 공개된 뒤에만 표시한다.
+  const revealed = g.phase === 'finished';
   const panel = el('div', { class: 'panel panel-log' });
   panel.append(el('h3', { text: '기보' }));
   const box = el('ol', { class: 'log' });
   for (const rec of g.log) {
     const kind =
       rec.kind === 'mine'
-        ? `지뢰${rec.minesHit === 2 ? '×2' : ''}`
+        ? `지뢰${revealed && rec.minesHit === 2 ? '×2' : ''}`
         : rec.kind === 'treasure'
           ? '보물'
           : rec.kind === 'visited'
